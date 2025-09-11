@@ -2,11 +2,16 @@ class Api::V1::OrdersController < ApplicationController
 
   def create
 
-    #response = CustomerApiService.find_customer(order_params[:customer_id])
-    #if response.code != 200
-    #  render json: { error: "Customer not found" }, status: :unprocessable_entity
-    #  return
-    #end
+    begin
+    response = CustomerApiService.find_customer(order_params[:customer_id])
+    rescue StandardError => e
+      render json: { error: "Error connecting to Customer service: #{e.message}" }, status: :service_unavailable
+      return
+    end
+    if response.code != 200
+      render json: { error: "Customer not found" }, status: :unprocessable_entity
+      return
+    end
 
     @order = Order.new(order_params)
 
