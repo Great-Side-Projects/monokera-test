@@ -6,7 +6,7 @@ class EventPublisher
     connection = Rails.application.config.bunny_connection
     connection.start
     channel = connection.create_channel
-    exchange = channel.queue("orders", durable: true)
+    exchange = channel.topic("orders_exchange", durable: true)
 
     exchange.publish(
       order.to_json,
