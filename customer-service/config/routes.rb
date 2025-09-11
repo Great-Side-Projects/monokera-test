@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
-      resources :customers, only: [:show]
+      get "customers/:customer_id", to: "customers#show_by_customer_id", constraints: { customer_id: /.+/ }
     end
   end
 end

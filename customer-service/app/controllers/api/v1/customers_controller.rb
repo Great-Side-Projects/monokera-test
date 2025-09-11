@@ -1,11 +1,13 @@
 class Api::V1::CustomersController < ApplicationController
 
-  def show
-    @customer = Customer.find(params[:id])
+  def show_by_customer_id
+    @customer = Customer.find_by(customer_id: params[:customer_id])
+    if @customer .nil?
+      render json: { error: 'Customer not found' }, status: :not_found
+      return
+    end
+
     render json: @customer, status: :ok
-  rescue ActiveRecord::RecordNotFound
-    # Si .find falla porque el ID no existe, entra aquí
-    render json: { error: 'Customer not found' }, status: :not_found
   end
 
 end

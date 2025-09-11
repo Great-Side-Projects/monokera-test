@@ -1,6 +1,7 @@
 class CreateCustomers < ActiveRecord::Migration[8.0]
   def change
     create_table :customers do |t|
+      t.string :customer_id
       t.string :customer_name
       t.string :address
       t.integer :orders_count
@@ -8,4 +9,5 @@ class CreateCustomers < ActiveRecord::Migration[8.0]
       t.timestamps
     end
   end
+  add_index :customers, :customer_id, unique: true
 end

@@ -8,17 +8,13 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   # API routes
+  # config/routes.rb
   namespace :api do
     namespace :v1 do
-      # ruta POST /api/v1/orders
+      get "orders/:customer_id", to: "orders#show_by_customer_id", constraints: { customer_id: /.+/ }
       resources :orders, only: [:create]
-
-      # Esto crea una ruta anidada para obtener los pedidos de un cliente
-      # GET /api/v1/customers/:customer_id/orders
-      resources :customers, only: [] do # No necesitamos rutas para /customers solos
-        resources :orders, only: [:index] # Pero sí para sus pedidos
-      end
     end
   end
+
 
 end
