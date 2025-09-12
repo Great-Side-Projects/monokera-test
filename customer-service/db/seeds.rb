@@ -9,12 +9,12 @@
 #   end
 # Customer seed data 10 entries
 10.times do |i|
-  Customer.find_or_create_by!(
+  Customer.find_or_create_by!(customer_id: "customer@email#{i + 1}.com") do |customer|
     # email is unique in the model customers identifier
-    customer_id: "customer@email#{i + 1}.com",
-    customer_name: "Customer #{i + 1}",
-    address: "Address #{i + 1}",
-    orders_count: 0
-  )
+    customer.email = "customer@email#{i + 1}.com"
+    customer.name = "Customer #{i + 1}"
+    customer.address = "Address #{i + 1}"
+    customer.orders_count = 1
+  end
 end
 

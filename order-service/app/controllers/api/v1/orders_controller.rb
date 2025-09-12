@@ -1,7 +1,6 @@
 class Api::V1::OrdersController < ApplicationController
 
   def create
-
     begin
     response = CustomerApiService.find_customer(order_params[:customer_id])
     rescue StandardError => e
@@ -17,7 +16,9 @@ class Api::V1::OrdersController < ApplicationController
 
     ActiveRecord::Base.transaction do
     if @order.save
-      EventPublisher.publish_order_created(@order)
+      # nuevo objeto para publicar el evento con los datos necesarios
+      event_order_created = Struct.new(:order_id, :customer_id).new(@order.id, @order.customer_id)
+      EventPublisher.publish_order_created(event_order_created)
       # si el evento no se logro publicar, la transaccion se revierte
       #raise ActiveRecord::Rollback unless EventPublisher.publish_order_created(@order)
       render json: @order, status: :created

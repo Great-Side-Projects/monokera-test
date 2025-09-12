@@ -8,15 +8,14 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # Order seed data 20 entries
- 20.times do |i|
-  Order.find_or_create_by!(
-    customer_id: rand(1..10),
-    product_name: "Product #{i + 1}",
-    quantity: rand(1..5),
-    price: (rand * 100).round(2),
-    status: ["pending", "shipped", "delivered"].sample
-  )
+10.times do |i|
+ Order.find_or_create_by!(id: i + 1) do |order|
+   order.customer_id = "customer@email#{i + 1}.com"
+   order.product_name = "Product #{i + 1}"
+   order.quantity = rand(1..5)
+   order.price = (rand * 100).round(2)
+   order.status = %w[pending shipped delivered].sample
  end
-
+end
 # Add more seed data as needed
 

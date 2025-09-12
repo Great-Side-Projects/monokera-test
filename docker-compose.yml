@@ -5,7 +5,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: development
     ports:
       - "5432:5432"
     volumes:
@@ -21,6 +20,51 @@ services:
       - "15672:15672"  # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  
+  orders-service:
+    build: ./order-service
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432
+      AMQP_URL: amqp://admin:password@rabbitmq:5672
+      CUSTOMER_API_URL: http://customers-service:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    command: >
+      sh -c "
+        set -e && rm -f /rails/tmp/pids/server.pid && # Elimina el PID del servidor si existe
+        bin/rails db:migrate &&
+        bin/rails db:seed &&
+        bin/rails server -b 0.0.0.0 -p 3001
+      "
+  customers-service:
+    build: ./customer-service
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432
+      AMQP_URL: amqp://admin:password@rabbitmq:5672
+    ports:
+      - "3000:3000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    command: >
+      sh -c "
+        set -e && rm -f /rails/tmp/pids/server.pid && # Elimina el PID del servidor si existe
+        bin/rails db:migrate &&
+        bin/rails db:seed &&
+        bin/rails server -b 0.0.0.0 -p 3000
+      "
 
 volumes:
   postgres_data:

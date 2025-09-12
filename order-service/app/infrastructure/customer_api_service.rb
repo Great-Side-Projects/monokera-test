@@ -3,7 +3,7 @@
 # En Order Service
 class CustomerApiService
   include HTTParty
-  base_uri 'http://localhost:3000' # URL del Customer Service
+  base_uri ENV.fetch("CUSTOMER_API_URL", "http://localhost:3001")
 
   def self.find_customer(customer_id)
     get("/api/v1/customers/#{customer_id}")
