@@ -7,7 +7,8 @@ Sneakers.configure(
   workers: 1,  # cantidad de workers internos
   threads: 1,  # cantidad de threads por worker
   prefetch: 1,
-  log: "log/sneakers.log"
+  log: "log/sneakers.log",
+  logger: Rails.logger
 )
 
 Sneakers.logger.level = Logger::DEBUG
