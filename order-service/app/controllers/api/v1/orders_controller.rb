@@ -1,36 +1,29 @@
+require_relative "../../../infrastructure/repositories/active_record_order_repository"
+require_relative "../../../infrastructure/services/customer_api_service"
+require_relative "../../../infrastructure/services/event_publisher"
+require_relative "../../../application_logic/use_cases/create_order"
+require_relative "../../../application_logic/use_cases/get_customer_orders"
+require_relative "../../../application_logic/dto/create_order_request"
+
 class Api::V1::OrdersController < ApplicationController
-
+  before_action :setup_dependencies
   def create
-    begin
-    response = CustomerApiService.find_customer(order_params[:customer_id])
-    rescue StandardError => e
-      render json: { error: "Error connecting to Customer service: #{e.message}" }, status: :service_unavailable
-      return
-    end
-    if response.code != 200
-      render json: { error: "Customer not found" }, status: :unprocessable_entity
-      return
-    end
 
-    @order = Order.new(order_params)
+    request = ApplicationLogic::Dto::CreateOrderRequest.new(
+      customer_id: params[:customer_id],
+      product_name: params[:product_name],
+      quantity: params[:quantity],
+      price: params[:price]
+    )
 
-    ActiveRecord::Base.transaction do
-    if @order.save
-      event_order_created = Struct.new(:order_id, :customer_id).new(@order.id, @order.customer_id)
-      EventPublisher.publish_order_created(event_order_created)
-      Rails.logger.info "Order created event published for Order ID: #{@order.id} and Customer ID: #{@order.customer_id}"
-      # si el evento no se logro publicar, la transaccion se revierte
-      render json: @order, status: :created
-    else
-      render json: { errors: @order.errors.full_messages }, status: :unprocessable_entity
-    end
-    end
+    response = @create_order.execute(request)
+    render json: response, status: :created
   end
 
   def show_by_customer_id
-    @order = Order.where(customer_id: params[:customer_id])
-    if @order.nil?
-      render json: { error: "Order not found" }, status: :not_found
+    @order = @get_customer_orders.execute(params[:customer_id])
+    if @order.empty?
+      render json: { error: "Orders not found" }, status: :not_found
       return
     end
 
@@ -40,4 +33,23 @@ class Api::V1::OrdersController < ApplicationController
   def order_params
     params.require(:order).permit(:customer_id, :product_name, :quantity, :price, :status)
   end
+
+  private
+  def setup_dependencies
+    @order_repository =  Infrastructure::Repositories::ActiveRecordOrderRepository.new
+    @customer_service = Infrastructure::Repositories::CustomerApiService.new
+    @event_publisher = Infrastructure::Repositories::EventPublisher.new
+
+    @create_order = ApplicationLogic::UseCases::CreateOrder.new(
+      order_repository: @order_repository,
+      customer_service: @customer_service,
+      event_publisher: @event_publisher
+    )
+
+    @get_customer_orders = ApplicationLogic::UseCases::GetCustomerOrders.new(
+      order_repository: @order_repository
+    )
+  end
 end
+
+

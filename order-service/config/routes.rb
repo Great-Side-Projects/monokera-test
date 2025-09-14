@@ -11,10 +11,8 @@ Rails.application.routes.draw do
   # config/routes.rb
   namespace :api do
     namespace :v1 do
-      get "orders/:customer_id", to: "orders#show_by_customer_id", constraints: { customer_id: /.+/ }
-      resources :orders, only: [:create]
+      get "customer/:customer_id/orders", to: "orders#show_by_customer_id", constraints: { customer_id: /.+/ }
+      resources :orders, only: [ :create ]
     end
   end
-
-
 end
