@@ -30,17 +30,23 @@ module ApplicationLogic
           product_name: request.product_name,
           quantity: request.quantity,
           price: request.price,
-          status: 'pending' # Estado inicial
+          status: "pending" # Estado inicial
         )
 
         # Persistir
-        ActiveRecord::Base.transaction do
-          @saved_order = @order_repository.save(order)
-          event_order_created = Struct.new(:order_id, :customer_id).new(@saved_order.id, @saved_order.customer_id)
-          @event_publisher.publish_order_created(event_order_created)
-          # Publicar evento
-          Rails.logger.info "Order created event published for Order ID: #{@saved_order.id} and Customer ID: #{@saved_order.customer_id}"
+        begin
+          ActiveRecord::Base.transaction do
+            @saved_order = @order_repository.save(order)
+            event_order_created = Struct.new(:order_id, :customer_id).new(@saved_order.id, @saved_order.customer_id)
+            # TODO: patron outbox para asegurar la entrega del evento
+            @event_publisher.publish_order_created(event_order_created)
+            # Publicar evento
+            Rails.logger.info "Order created event published for Order ID: #{@saved_order.id} and Customer ID: #{@saved_order.customer_id}"
+          end
+        rescue StandardError => e
+          raise StandardError, "error: Failed to create order"
         end
+
 
         # Retornar DTO de respuesta
         ApplicationLogic::Dto::OrderResponse.new(@saved_order)
