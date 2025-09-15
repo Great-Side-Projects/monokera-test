@@ -4,7 +4,7 @@ require_relative "../../application_logic/dto/order_response"
 module ApplicationLogic
   module UseCases
     class CreateOrder
-      def initialize(order_repository:, customer_service:, event_publisher:)
+        def initialize(order_repository:, customer_service:, event_publisher:)
         @order_repository = order_repository
         @customer_service = customer_service
         @event_publisher = event_publisher
