@@ -3,7 +3,7 @@ require_relative "../../application_logic/dto/order_response"
 module ApplicationLogic
   module UseCases
     class GetCustomerOrders
-      def initialize(order_repository:)
+      def initialize(order_repository: Infrastructure::Port::OrderRepository)
         @order_repository = order_repository
       end
 

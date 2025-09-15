@@ -3,7 +3,7 @@
 module ApplicationLogic
   module UseCases
     class IncrementCustomerOrderCount
-      def initialize(customer_repository:)
+      def initialize(customer_repository: Infrastructure::Port::CustomerRepository)
         @customer_repository = customer_repository
       end
       def execute(customer_id)

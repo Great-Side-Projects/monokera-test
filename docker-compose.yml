@@ -28,6 +28,7 @@ services:
   
   orders-service:
     build: ./order-service
+    image: orders-service:1.0.0
     environment:
       DATABASE_URL: postgres://postgres:password@postgres:5432
       AMQP_URL: amqp://admin:password@rabbitmq:5672
@@ -48,6 +49,7 @@ services:
       "
   customers-service:
     build: ./customer-service
+    image: customers-service:1.0.0
     environment:
       DATABASE_URL: postgres://postgres:password@postgres:5432
       AMQP_URL: amqp://admin:password@rabbitmq:5672
