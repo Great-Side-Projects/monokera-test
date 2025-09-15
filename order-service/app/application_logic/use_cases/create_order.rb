@@ -5,8 +5,8 @@ module ApplicationLogic
   module UseCases
     class CreateOrder
         def initialize(order_repository: Infrastructure::Port::OrderRepository,
-                       customer_service: Infrastructure::Services::CustomerService,
-                       event_publisher: Infrastructure::Messaging::EventPublisher
+                       customer_service: Infrastructure::Port::CustomerService,
+                       event_publisher: Infrastructure::Port::EventPublisher
         )
         @order_repository = order_repository
         @customer_service = customer_service

@@ -25,8 +25,8 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 
     # Stub dependency creation
     Infrastructure::Repositories::ActiveRecordOrderRepository.stub :new, @mock_repository do
-      Infrastructure::Repositories::CustomerApiService.stub :new, @mock_customer_service do
-        Infrastructure::Repositories::EventPublisher.stub :new, @mock_event_publisher do
+      Infrastructure::Services::CustomerApiService.stub :new, @mock_customer_service do
+        Infrastructure::Services::EventPublisher.stub :new, @mock_event_publisher do
           ApplicationLogic::UseCases::CreateOrder.stub :new, @mock_create_order do
             ApplicationLogic::UseCases::GetCustomerOrders.stub :new, @mock_get_customer_orders do
               # Tests will run here
@@ -59,8 +59,8 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     @mock_create_order.expect :execute, expected_response, [Object]
 
     Infrastructure::Repositories::ActiveRecordOrderRepository.stub :new, @mock_repository do
-      Infrastructure::Repositories::CustomerApiService.stub :new, @mock_customer_service do
-        Infrastructure::Repositories::EventPublisher.stub :new, @mock_event_publisher do
+      Infrastructure::Services::CustomerApiService.stub :new, @mock_customer_service do
+        Infrastructure::Services::EventPublisher.stub :new, @mock_event_publisher do
           ApplicationLogic::UseCases::CreateOrder.stub :new, @mock_create_order do
             post api_v1_orders_url, params: @valid_order_params, as: :json
           end
@@ -79,8 +79,8 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
           raise StandardError.new("Customer not found")
         end
     Infrastructure::Repositories::ActiveRecordOrderRepository.stub :new, @mock_repository do
-      Infrastructure::Repositories::CustomerApiService.stub :new, @mock_customer_service do
-        Infrastructure::Repositories::EventPublisher.stub :new, @mock_event_publisher do
+      Infrastructure::Services::CustomerApiService.stub :new, @mock_customer_service do
+        Infrastructure::Services::EventPublisher.stub :new, @mock_event_publisher do
           ApplicationLogic::UseCases::CreateOrder.stub :new, @mock_create_order do
             assert_raises StandardError do
               post api_v1_orders_url, params: @valid_order_params, as: :json

@@ -2,9 +2,9 @@
 require "httparty"
 require_relative "../../domain/port/customer_service"
 module Infrastructure
-  module Repositories
-    include Domain::Port::CustomerService
+  module Services
     class CustomerApiService
+      include Domain::Port::CustomerService
       def initialize
         @base_uri = ENV.fetch("CUSTOMER_API_URL", "http://localhost:3000")
       end

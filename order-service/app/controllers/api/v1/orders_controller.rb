@@ -38,8 +38,8 @@ class Api::V1::OrdersController < ApplicationController
 
   def setup_dependencies
     @order_repository =  Infrastructure::Repositories::ActiveRecordOrderRepository.new
-    @customer_service = Infrastructure::Repositories::CustomerApiService.new
-    @event_publisher = Infrastructure::Repositories::EventPublisher.new
+    @customer_service = Infrastructure::Services::CustomerApiService.new
+    @event_publisher = Infrastructure::Services::EventPublisher.new
 
     @create_order = ApplicationLogic::UseCases::CreateOrder.new(
       order_repository: @order_repository,
