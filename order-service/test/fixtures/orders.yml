@@ -2,12 +2,14 @@
 
 one:
   customer_id: 1
-  product_name: MyString
+  product_name: Laptop
   quantity: 1
   price: 9.99
+  status: pending
 
 two:
   customer_id: 1
-  product_name: MyString
+  product_name: Mouse
   quantity: 1
   price: 9.99
+  status: shipped
