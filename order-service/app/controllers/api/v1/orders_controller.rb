@@ -35,6 +35,7 @@ class Api::V1::OrdersController < ApplicationController
   end
 
   private
+
   def setup_dependencies
     @order_repository =  Infrastructure::Repositories::ActiveRecordOrderRepository.new
     @customer_service = Infrastructure::Repositories::CustomerApiService.new

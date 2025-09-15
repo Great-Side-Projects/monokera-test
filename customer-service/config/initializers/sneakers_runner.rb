@@ -1,10 +1,10 @@
 
 require "sneakers/runner"
-
+require_relative "../../app/infrastructure/services/event_consumer"
 Rails.application.config.after_initialize do
   Thread.new do
     begin
-      workers = [ EventConsumer ] # aquí agregas tus workers
+      workers = [ Infrastructure::Services::EventConsumer ] # aquí agregas tus workers
       runner = Sneakers::Runner.new(workers)
       runner.run
     rescue => e
