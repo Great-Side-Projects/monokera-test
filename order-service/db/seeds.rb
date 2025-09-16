@@ -9,8 +9,6 @@
 #   end
 # Order seed data 20 entries
 
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE orders RESTART IDENTITY CASCADE;")
-
 10.times do |i|
  Order.find_or_create_by!(id: i + 1) do |order|
    order.customer_id = "customer@email#{i + 1}.com"
