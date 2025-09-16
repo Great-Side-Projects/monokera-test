@@ -6,9 +6,11 @@ Rails.application.config.after_initialize do
   conn = Bunny.new(amqp_url)
   conn.start
   Rails.application.config.bunny_connection = conn
+  Rails.application.config.bunny_channel = conn.create_channel
 
   # cerrar la conexión al terminar la aplicación
   at_exit do
+    Rails.logger.info "Closing RabbitMQ connection"
     conn.close if conn && conn.open?
   end
 end
