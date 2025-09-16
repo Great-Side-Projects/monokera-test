@@ -1,13 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  customer_id: MyString
-  customer_name: MyString
-  address: MyString
+  customer_id: customer@email1.com
+  customer_name: Customer One
+  address: av florida 123
   orders_count: 1
 
 two:
-  customer_id: MyString
-  customer_name: MyString
-  address: MyString
+  customer_id: customer@email2.com
+  customer_name: Customer Two
+  address: av brasil 456
   orders_count: 1
