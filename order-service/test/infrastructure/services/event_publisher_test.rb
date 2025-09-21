@@ -1,121 +1,69 @@
-      # frozen_string_literal: true
+     # frozen_string_literal: true
 
-      require "test_helper"
-      require "minitest/autorun"
-      require_relative "../../../app/infrastructure/services/event_publisher"
+require "test_helper"
+require "minitest/autorun"
+require_relative "../../../app/infrastructure/services/event_publisher"
+require "ostruct"
 
-      module Infrastructure
-        module Services
-          class EventPublisherTest < Minitest::Test
-            extend ActiveSupport::Testing::Declarative
-# TODO: check error global
-=begin
-            def setup
-              @connection_mock = Minitest::Mock.new
-              @channel_mock = Minitest::Mock.new
-              @exchange_mock = Minitest::Mock.new
-              @publisher = EventPublisher.new(connection: @connection_mock)
-            end
+module Infrastructure
+  module Services
+    class EventPublisherTest < Minitest::Test
+      extend ActiveSupport::Testing::Declarative
 
-            def teardown
-              [@connection_mock, @channel_mock, @exchange_mock].each(&:verify)
-            end
+      def setup
+        @channel_mock = Minitest::Mock.new
+        @exchange_mock = Minitest::Mock.new
+        @logger_mock = Minitest::Mock.new
+        @publisher = EventPublisher.new(channel: @channel_mock)
+      end
 
-            test "publish order created starts connection and creates channel" do
-              order_model = create_mock_order('{"id":1,"status":"created"}')
+      def teardown
+        [@channel_mock, @exchange_mock].each(&:verify)
+      end
 
-              @connection_mock.expect(:start, nil)
-              @connection_mock.expect(:create_channel, @channel_mock)
-              @connection_mock.expect(:open?, true)
-              @connection_mock.expect(:close, nil)
+      test "publish order created publishes with correct parameters" do
+        order_model = create_mock_order(order_id: 1, customer_id: "customer@email3.com")
 
-              @channel_mock.expect(:topic, @exchange_mock) do |name, **options|
-                name == "orders_exchange" && options[:durable] == true
-              end
-              @exchange_mock.expect(:publish, nil) do |json, opts|
-                json == '{"id":1,"status":"created"}' && opts == { routing_key: "order.created" }
-              end
+        @channel_mock.expect(:topic, @exchange_mock) do |name, options|
+          name == "orders_exchange" && options == { durable: true }
+        end
+        @exchange_mock.expect(:publish, nil) do |json, opts|
+          json == '{"order_id":1,"customer_id":"customer@email3.com"}' && opts == { routing_key: "order.created" }
+        end
 
-              @publisher.publish_order_created(order_model)
-            end
+        @publisher.publish_order_created(order_model)
+      end
 
-            test "publish order created closes connection after publishing" do
-              order_model = create_mock_order('{"id":2}')
+      test "publish order created handles errors and re-raises" do
+        order_model = create_mock_order(order_id: 1, customer_id: "customer@email3.com")
+        error_message = "Connection failed"
 
-              @connection_mock.expect(:start, nil)
-              @connection_mock.expect(:create_channel, @channel_mock)
-              @connection_mock.expect(:open?, true)
-              @connection_mock.expect(:close, nil)
+        @channel_mock.expect(:topic, nil) do |name, options|
+          raise StandardError.new(error_message)
+        end
 
-              @channel_mock.expect(:topic, @exchange_mock) do |name, **options|
-                name == "orders_exchange" && options[:durable] == true
-              end
-              @exchange_mock.expect(:publish, nil) do |json, opts|
-                json == '{"id":2}' && opts == { routing_key: "order.created" }
-              end
+        # Mock Rails.logger for error logging
+        @logger_mock.expect(:error, nil, ["Failed to publish order created event: #{error_message}"])
 
-              @publisher.publish_order_created(order_model)
-            end
-
-            test "publish order created publishes with correct routing key" do
-              order_model = create_mock_order('{"customer_id":123}')
-
-              @connection_mock.expect(:start, nil)
-              @connection_mock.expect(:create_channel, @channel_mock)
-              @connection_mock.expect(:open?, true)
-              @connection_mock.expect(:close, nil)
-
-              @channel_mock.expect(:topic, @exchange_mock) do |name, **options|
-                name == "orders_exchange" && options[:durable] == true
-              end
-              @exchange_mock.expect(:publish, nil) do |json, opts|
-                json == '{"customer_id":123}' && opts == { routing_key: "order.created" }
-              end
-
-              @publisher.publish_order_created(order_model)
-            end
-
-            test "publish order created converts order model to json" do
-              json_data = '{"id":4,"customer_id":456,"status":"pending"}'
-              order_model = create_mock_order(json_data)
-
-              @connection_mock.expect(:start, nil)
-              @connection_mock.expect(:create_channel, @channel_mock)
-              @connection_mock.expect(:open?, true)
-              @connection_mock.expect(:close, nil)
-
-              @channel_mock.expect(:topic, @exchange_mock) do |name, **options|
-                name == "orders_exchange" && options[:durable] == true
-              end
-              @exchange_mock.expect(:publish, nil) do |json, opts|
-                json == json_data && opts == { routing_key: "order.created" }
-              end
-
-              @publisher.publish_order_created(order_model)
-            end
-
-            private
-
-            def create_mock_order(json_response)
-              order_mock = Minitest::Mock.new
-              order_mock.expect(:to_json, json_response)
-
-              # Permitir cualquier método interno que Ruby pueda llamar
-              def order_mock.method_missing(method, *args)
-                if method.to_s.start_with?('instance_variable_')
-                  nil
-                else
-                  super
-                end
-              end
-
-              def order_mock.respond_to_missing?(method, include_private = false)
-                method.to_s.start_with?('instance_variable_') || super
-              end
-
-              order_mock
-            end
-=end
+        Rails.stub(:logger, @logger_mock) do
+          assert_raises(StandardError) do
+            @publisher.publish_order_created(order_model)
           end
         end
+
+        @logger_mock.verify
       end
+
+      private
+
+      def create_mock_order(order_id:, customer_id:)
+
+        order_data = OpenStruct.new(order_id: order_id, customer_id: customer_id)
+        order_data.define_singleton_method(:to_json) do
+          JSON.generate({ order_id: self.order_id, customer_id: self.customer_id})
+        end
+        order_data
+      end
+    end
+  end
+end
