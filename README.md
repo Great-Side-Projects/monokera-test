@@ -9,8 +9,11 @@ was implemented using hexagonal architecture, which promotes separation of conce
 
 Things you may want to cover:
 
+* docker and docker-compose
 * Ruby version (3.4.5)
-* Rails version (8.0.4)
+* Rails version (8.0.4)}
+* Sneakers - kicks background jobs
+* Unit testing framework (Minitest)
 * System dependencies PostgreSQL y RabbitMQ
 * Configuration
 1. Clone the repository
@@ -100,6 +103,14 @@ Things you may want to cover:
     ```bash
     rails test
     ```
+5. coverage report both services
+   ```bash
+    open coverage/index.html
+   ```
+* Order service coverage report
+   ![coverage](./docs/coverage_order.png)
+* Customer service coverage report
+   ![coverage](./docs/coverage2.png)
 # Diagrams
 ## Hexagonal architecture
    ![architecture](./docs/hexagonal-architecture.png)
@@ -112,3 +123,7 @@ Things you may want to cover:
 * Outbox pattern for message reliability
 * Dead letter queue for failed messages
 * gRPC for inter-service communication
+* Mapper for DTOs
+* API documentation with Swagger
+* Coverage test > 85%
+ 
