@@ -110,7 +110,8 @@ Things you may want to cover:
 * Order service coverage report
    ![coverage](./docs/coverage_order.png)
 * Customer service coverage report
-   ![coverage](./docs/coverage2.png)
+   ![coverage](./docs/coverage_customer.png)
+
 # Diagrams
 ## Hexagonal architecture
    ![architecture](./docs/hexagonal-architecture.png)
