@@ -1,4 +1,7 @@
-# README
+# Monokera Test - Microservices with Ruby on Rails, PostgreSQL, RabbitMQ, and Docker
+
+<!-- link a pdf test -->
+[![Documentation en PDF](https://img.shields.io/badge/Test-PDF-blue)](./docs/Prueba%20técnica%20Tech%20Lead%20-%20Monokera.pdf) 
 
 This README would normally document whatever steps are necessary to get the
 application up and running.
